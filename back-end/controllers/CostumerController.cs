@@ -2,29 +2,38 @@ using Microsoft.AspNetCore.Mvc;
 using costumerManagement.utils;
 using costumerManagement.Interface;
 using costumerManagement.Models;
+using costumerManagement.Data;
 [ApiController]
 [Route("[Controller]")]
-public class StartController : ControllerBase
+public class CostumerController : ControllerBase
 {
-    List<Iconstumer> customers = new List<Iconstumer>();
-    [HttpGet]
-    public IActionResult Start()
+    public CostumerController(DataContext _context)
     {
-
-        return Ok("customer.fullName");
+        context = _context;
     }
+    DataContext context;
+
     [HttpPost]
     public IActionResult CreateCustomer([FromBody] Request request)
     {
-        int id = 0;
+        int id = context.constumer.Count();
         id++;
         Costumer costumer = new Costumer();
         costumer.id = id;
         costumer.fullName = request.fullName;
         Check check = FactoryCheck.Create(0, costumer);
         costumer.check = check.identification;
-        customers.Add(costumer);
+        costumer.id = id;
+        context.Add(costumer);
+        context.Add(check);
+        context.SaveChanges();
         return Ok(costumer.fullName);
+    }
+    [HttpGet]
+
+    public IEnumerable<Costumer> GetMovies()
+    {
+        return context.constumer;
     }
 
 }
